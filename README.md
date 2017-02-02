@@ -13,5 +13,18 @@ The following modules are required (not an exhaustive list)
 4.  net
 5.  url
 
+## Running the proxy
+
+You will need to set a proxy to listen on 127.0.0.1:9393.
+
+Clone this repository.
+
+Use `nodemon test` to run
+
+## To-dos
+
+1.  Allow https traffic pass through the server.
+2.  Enable Caching.
+3.  Allow for dynamic blacklisting of websites.
 
 
