@@ -1,0 +1,16 @@
+{
+  "name": "proccoli-master",
+  "version": "1.0.0",
+  "description": "web proxy",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "me",
+  "license": "ISC",
+  "dependencies": {
+    "mime": "^1.3.4",
+    "url": "^0.11.0"
+  }
+}

@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Index Page</title>
+    </head>
+    <script type="text/javascript" src="/node_modules/socket.io/lib/socket.js"></script>
+    <script type="text/javascript">
+        var variableFromFrontEnd = 2;
+        var socket = io.connect("/");
+        socket.on("connect", function(){
+            console.log("connected!")
+            socket.emit("sendVar", variableFromFrontEnd);
+        });
+    </script>
+</html>
