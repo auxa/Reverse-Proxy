@@ -1,6 +1,6 @@
 # Squid Proxy
 
-Web-Caching Protocol Written using Node.JS to act as a web proxy for html pages. 
+Web-Caching Protocol Written using Node.JS to act as a web proxy for html pages.
 
 ## Dependencies
 You will need to have node.js installed to run
@@ -23,8 +23,5 @@ Use `nodemon test` to run
 
 ## To-dos
 
-1.  Allow https traffic pass through the server.
-2.  Enable Caching.
-3.  Allow for dynamic blacklisting of websites.
-
-
+1.  Enable Caching.
+2.  Allow for dynamic blacklisting of websites.
