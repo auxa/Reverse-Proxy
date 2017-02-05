@@ -25,3 +25,8 @@ Use `nodemon test` to run
 
 1.  Enable Caching.
 2.  Allow for dynamic blacklisting of websites.
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 0644f0e6c9fb13b6f707fa95802633443e554790

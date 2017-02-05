@@ -76,7 +76,10 @@ squidProxy.prototype.requestHandler = function(req, res) {
         });
 
         req.pipe(remoteRequest);
-
+        // to the server.
+       res.on('close', function() {
+           remoteRequest.abort();
+               });
 
     }
 
@@ -92,6 +95,17 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
 
         connectRemote(requestOptions, socket);
 
+        function ontargeterror(e) {
+            console.log(req.url + " Tunnel error: " + e);
+                        _synReply(socket, 502, "Tunnel Error", {}, function() {
+               try {
+                    socket.end();
+                }
+               catch(e) {
+                  console.log('end error' + e.message);
+              }
+           });
+       }
 
         function connectRemote(requestOptions, socket) {
             var tunnel = net.createConnection(requestOptions, function() {
@@ -115,7 +129,7 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
             });
 
             tunnel.setNoDelay(true);
-
+            tunnel.on('error', ontargeterror);
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);
