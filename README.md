@@ -23,8 +23,7 @@ Use `nodemon test` to run
 
 ## To-dos
 
-1.  Allow https traffic pass through the server.
-2.  Enable Caching.
-3.  Allow for dynamic blacklisting of websites.
+1.  Enable Caching.
+2.  Allow for dynamic blacklisting of websites.
 
 
