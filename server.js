@@ -1,7 +1,7 @@
 var http = require("http");
 var net = require("net");
 var url = require("url");
-var port ;
+var port;
 
 function MiniProxy(options) {
     this.port = 9393;
@@ -10,19 +10,16 @@ function MiniProxy(options) {
     this.onBeforeResponse = options.onBeforeResponse || function() {};
     this.onRequestError = options.onRequestError || function() {};
 }
+//create the proxy server and start listening
 MiniProxy.prototype.start = function() {
     var server = http.createServer();
-
     server.on("request", this.requestHandler);
     server.on("connect", this.connectHandler);
-
     server.on("error", this.onServerError);
     server.on("beforeRequest", this.onBeforeRequest);
     server.on("beforeResponse", this.onBeforeResponse);
     server.on("requestError", this.onRequestError);
-
     server.listen(this.port);
-    port = this.port;
 }
 
 MiniProxy.prototype.requestHandler = function(req, res) {
@@ -37,9 +34,10 @@ MiniProxy.prototype.requestHandler = function(req, res) {
             method: req.method,
             headers: req.headers
         };
+        //print the http headers
         console.log(requestOptions);
 
-        //check url
+        //check url to see if we want the management console
         if (requestOptions.host == "127.0.0.1" && requestOptions.port == port) {
             res.writeHead(200, {
                 'Content-Type': 'text/plain'
@@ -50,7 +48,6 @@ MiniProxy.prototype.requestHandler = function(req, res) {
         }
 
         //u can change request param here
-        self.emit("beforeRequest", requestOptions);
         requestRemote(requestOptions, req, res, self);
 
     } catch (e) {
