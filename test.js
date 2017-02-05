@@ -1,11 +1,11 @@
-var MiniProxy = require("./index.js");
+var squidProxy = require("./index.js");
 
 
-var myProxy = new MiniProxy({
+var squidward = new squidProxy({
 	"port": 9393,
 	"onBeforeRequest": function(requestOptions) {
 		console.log("proxy request :" + requestOptions.host + (requestOptions.path || ''));
 	}
 });
-myProxy.start();
+squidward.start();
 console.log("proxy start at 9393");

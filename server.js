@@ -3,7 +3,7 @@ var net = require("net");
 var url = require("url");
 var port;
 
-function MiniProxy(options) {
+function squidProxy(options) {
     this.port = 9393;
     this.onServerError = options.onServerError || function() {};
     this.onBeforeRequest = options.onBeforeRequest || function() {};
@@ -11,7 +11,7 @@ function MiniProxy(options) {
     this.onRequestError = options.onRequestError || function() {};
 }
 //create the proxy server and start listening
-MiniProxy.prototype.start = function() {
+squidProxy.prototype.start = function() {
     var server = http.createServer();
     server.on("request", this.requestHandler);
     server.on("connect", this.connectHandler);
@@ -22,7 +22,7 @@ MiniProxy.prototype.start = function() {
     server.listen(this.port);
 }
 
-MiniProxy.prototype.requestHandler = function(req, res) {
+squidProxy.prototype.requestHandler = function(req, res) {
     try {
 
         var self = this; // this -> server
@@ -51,66 +51,47 @@ MiniProxy.prototype.requestHandler = function(req, res) {
         requestRemote(requestOptions, req, res, self);
 
     } catch (e) {
-        console.log("requestHandlerError" + e.message);
+        console.log("request error: Bad Request: " + e.message);
     }
 
     function requestRemote(requestOptions, req, res, proxy) {
         var remoteRequest = http.request(requestOptions, function(remoteResponse) {
-            remoteResponse.headers['proxy-agent'] = 'Easy Proxy 1.0';
+            remoteResponse.headers['proxy-agent'] = 'Proxy Agent';
 
             // write out headers to handle redirects
             res.writeHead(remoteResponse.statusCode, '', remoteResponse.headers);
 
             // u can change resonse here
-            proxy.emit("beforeResponse", remoteResponse);
             remoteResponse.pipe(res);
-            // Res could not write, but it could close connection
+
+            // close connection
             res.pipe(remoteResponse);
         });
 
         remoteRequest.on('error', function(e) {
-            proxy.emit("requestError", e, req, res);
-
-            res.writeHead(502, 'Proxy fetch failed');
+            console.log('error in request: failed to fetch');
+           res.writeHead(502, 'Proxy fetch failed');
            res.end();
            remoteRequest.end();
         });
 
         req.pipe(remoteRequest);
 
-        // Just in case if socket will be shutdown before http.request will connect
-        // to the server.
-        res.on('close', function() {
-            remoteRequest.abort();
-        });
+
     }
 
 }
 
-MiniProxy.prototype.connectHandler = function(req, socket, head) {
+squidProxy.prototype.connectHandler = function(req, socket, head) {
     try {
         var self = this;
-
         var requestOptions = {
             host: req.url.split(':')[0],
-            port: req.url.split(':')[1] || 443
+            port: req.url.split(':')[1] || 443  //443 default port (we always want https pls)
         };
 
-        self.emit("beforeRequest", requestOptions);
         connectRemote(requestOptions, socket);
 
-        function ontargeterror(e) {
-            console.log(req.url + " Tunnel error: " + e);
-            _synReply(socket, 502, "Tunnel Error", {}, function() {
-                try {
-                    socket.end();
-                }
-                catch(e) {
-                    console.log('end error' + e.message);
-                }
-
-            });
-        }
 
         function connectRemote(requestOptions, socket) {
             var tunnel = net.createConnection(requestOptions, function() {
@@ -119,6 +100,7 @@ MiniProxy.prototype.connectHandler = function(req, socket, head) {
                         'Connection': 'keep-alive',
                         'Proxy-Agent': 'Easy Proxy 1.0'
                     },
+                    //close connect if an error otherwise send packet
                     function(error) {
                         if (error) {
                             console.log("syn error", error.message);
@@ -134,7 +116,6 @@ MiniProxy.prototype.connectHandler = function(req, socket, head) {
 
             tunnel.setNoDelay(true);
 
-            tunnel.on('error', ontargeterror);
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);
@@ -142,17 +123,17 @@ MiniProxy.prototype.connectHandler = function(req, socket, head) {
 
 }
 
-function _synReply(socket, code, reason, headers, cb) {
+function _synReply(socket, code, reason, headers, errorHandle) {
     try {
         var statusLine = 'HTTP/1.1 ' + code + ' ' + reason + '\r\n';
         var headerLines = '';
-        for (var key in headers) {
-            headerLines += key + ': ' + headers[key] + '\r\n';
+        for (var index in headers) {
+            headerLines += index + ': ' + headers[index] + '\r\n';  //append all the headers to the header
         }
-        socket.write(statusLine + headerLines + '\r\n', 'UTF-8', cb);
+        socket.write(statusLine + headerLines + '\r\n', 'UTF-8', errorHandle); //send on socket
     } catch (error) {
-        cb(error);
+        errorHandle(error);
     }
 }
 
-module.exports = MiniProxy;
+module.exports = squidProxy;

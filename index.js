@@ -1,3 +1,3 @@
-var miniProxy = require("./server.js");
+var squidProxy = require("./server.js");
 
-module.exports = miniProxy;
+module.exports = squidProxy;
