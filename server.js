@@ -4,7 +4,7 @@ var url = require("url");
 var port ;
 
 function MiniProxy(options) {
-    this.port = options.port || 9393;
+    this.port = 9393;
     this.onServerError = options.onServerError || function() {};
     this.onBeforeRequest = options.onBeforeRequest || function() {};
     this.onBeforeResponse = options.onBeforeResponse || function() {};
