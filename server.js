@@ -61,10 +61,9 @@ squidProxy.prototype.requestHandler = function(req, res) {
             // write out headers to handle redirects
             res.writeHead(remoteResponse.statusCode, '', remoteResponse.headers);
 
-            // u can change resonse here
+            // change resonse here
             remoteResponse.pipe(res);
-
-            // close connection
+            // finish connection
             res.pipe(remoteResponse);
         });
 
@@ -79,7 +78,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
         // to the server.
        res.on('close', function() {
            remoteRequest.abort();
-               });
+         });
 
     }
 
@@ -90,7 +89,7 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
         var self = this;
         var requestOptions = {
             host: req.url.split(':')[0],
-            port: req.url.split(':')[1] || 443  //443 default port (we always want https pls)
+            port: req.url.split(':')[1] || 443  //443 default port (we always want https)
         };
 
         connectRemote(requestOptions, socket);
@@ -112,14 +111,14 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                 //format http protocol
                 _synReply(socket, 200, 'Connection established', {
                         'Connection': 'keep-alive',
-                        'Proxy-Agent': 'Easy Proxy 1.0'
+                        'Proxy-Agent': 'Squid Proxy'
                     },
                     //close connect if an error otherwise send packet
                     function(error) {
                         if (error) {
+                            socket.end();
                             console.log("syn error", error.message);
                             tunnel.end();
-                            socket.end();
                             return;
                         }
                         tunnel.pipe(socket);
