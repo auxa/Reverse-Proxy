@@ -50,11 +50,15 @@ squidProxy.prototype.requestHandler = function(req, res) {
             headers: req.headers
         };
         //print the http headers
-        console.log(requestOptions);
-        console.log('henkadnre');
-
+        console.log(requestOptions.host);
+      //  console.log('henkadnre');
           if("block" == map.get(requestOptions.host)){
-            throw e;
+            res.writeHead(404, {
+                'Content-Type': 'text/plain'
+            });
+            res.write("You do not have permission to access this websites");
+            res.end();
+            return
           }
 
 
