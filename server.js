@@ -2,13 +2,16 @@ var http = require("http");
 var net = require("net");
 var url = require("url");
 var port;
+var arrayOfWebsites;
 
 function squidProxy(options) {
     this.port = 9393;
+    this.arrayOfWebsites = options.blocked;
     this.onServerError = options.onServerError || function() {};
     this.onBeforeRequest = options.onBeforeRequest || function() {};
     this.onBeforeResponse = options.onBeforeResponse || function() {};
     this.onRequestError = options.onRequestError || function() {};
+    console.log(this.arrayOfWebsites)
 }
 //create the proxy server and start listening
 squidProxy.prototype.start = function() {
@@ -20,6 +23,7 @@ squidProxy.prototype.start = function() {
     server.on("beforeResponse", this.onBeforeResponse);
     server.on("requestError", this.onRequestError);
     server.listen(this.port);
+
 }
 
 squidProxy.prototype.requestHandler = function(req, res) {
@@ -36,6 +40,13 @@ squidProxy.prototype.requestHandler = function(req, res) {
         };
         //print the http headers
         console.log(requestOptions);
+        console.log('henkadnre');
+
+        for(var i =0; i<arrayOfWebsites.length; i++){
+          if(requestOptions.host == arrayOfWebsites[i].websites){
+            throw e;
+          }
+        }
 
         //check url to see if we want the management console
         if (requestOptions.host == "127.0.0.1" && requestOptions.port == port) {
