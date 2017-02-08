@@ -21,8 +21,15 @@ Clone this repository.
 
 Use `nodemon test` to run
 
+## Blacklisting websites.
+
+To blacklist a website you can either:
+
+1.  Add the websites you want to blacklist to the *websites.json* failed
+2.  You can enter the address of the website you blacklist into the command line (eg. To block "bob.com" enter: bob.com and www.bob.com)
+
+To remove a blacklist do the opposite as from above
+
 ## To-dos
 
-1.  Enable Caching.
-2.  Allow for dynamic blacklisting of websites.
-
+1.  Allow for dynamic blacklisting of websites.

@@ -2,7 +2,6 @@ var squidProxy = require("./index.js");
 var readline = require('readline');
 var HashMap = require('hashmap');
 var fs = require('fs');
-var remove = require('unordered-array-remove');
 
 var arrayOfWebsites;
 
