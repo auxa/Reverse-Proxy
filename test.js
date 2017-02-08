@@ -2,6 +2,7 @@ var squidProxy = require("./index.js");
 var readline = require('readline');
 var HashMap = require('hashmap');
 var fs = require('fs');
+var remove = require('unordered-array-remove');
 
 var arrayOfWebsites;
 
@@ -33,11 +34,25 @@ rl.on('line', (line) =>{
 			console.log(`blocking '${line.trim()}`);
 			fs.readFile('./websites.json', 'utf-8', function(err, data){
 				if(err) throw err;
-
+				var i;
 				 arrayOfWebsites = JSON.parse(data);
-				arrayOfWebsites.websites.push({
-					address: line.trim()
-				});
+
+				 var testing =-1;
+				 for(i =0; i< arrayOfWebsites.websites.length; i++){
+					  if(arrayOfWebsites.websites[i].address === line.trim()){
+							arrayOfWebsites.websites[i].address='null';
+							testing =0;
+						}
+				 }
+				 if(testing != 0){
+					 arrayOfWebsites.websites.push({
+					 address: line.trim()
+				 });
+				 }
+
+
+
+				 console.log(i + " " +arrayOfWebsites.websites.length )
 
 
 			fs.writeFile('./websites.json', JSON.stringify(arrayOfWebsites), 'utf-8', function(err){
