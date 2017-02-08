@@ -1,17 +1,29 @@
 var http = require("http");
 var net = require("net");
 var url = require("url");
+var fs = require("fs");
+var HashMap =  require("hashmap");
+var map = new HashMap();
 var port;
-var arrayOfWebsites;
+var blockList;
 
 function squidProxy(options) {
     this.port = 9393;
-    this.arrayOfWebsites = options.blocked;
     this.onServerError = options.onServerError || function() {};
     this.onBeforeRequest = options.onBeforeRequest || function() {};
     this.onBeforeResponse = options.onBeforeResponse || function() {};
     this.onRequestError = options.onRequestError || function() {};
-    console.log(this.arrayOfWebsites)
+
+    fs.readFile('./websites.json', (err, data) =>{
+      if(err) throw err;
+
+      blockList = JSON.parse(data);
+      for(var i =0; i<blockList.websites.length; i++){
+        console.log(blockList.websites[i].address);
+        map.set(blockList.websites[i].address, "block");
+      }
+    });
+
 }
 //create the proxy server and start listening
 squidProxy.prototype.start = function() {
@@ -28,7 +40,6 @@ squidProxy.prototype.start = function() {
 
 squidProxy.prototype.requestHandler = function(req, res) {
     try {
-
         var self = this; // this -> server
         var path = req.headers.path || url.parse(req.url).path;
         var requestOptions = {
@@ -42,11 +53,10 @@ squidProxy.prototype.requestHandler = function(req, res) {
         console.log(requestOptions);
         console.log('henkadnre');
 
-        for(var i =0; i<arrayOfWebsites.length; i++){
-          if(requestOptions.host == arrayOfWebsites[i].websites){
+          if("block" == map.get(requestOptions.host)){
             throw e;
           }
-        }
+
 
         //check url to see if we want the management console
         if (requestOptions.host == "127.0.0.1" && requestOptions.port == port) {
