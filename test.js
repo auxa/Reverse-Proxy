@@ -39,7 +39,7 @@ rl.on('line', (line) =>{
 				 var testing =-1;
 				 for(i =0; i< arrayOfWebsites.websites.length; i++){
 					  if(arrayOfWebsites.websites[i].address === line.trim()){
-							arrayOfWebsites.websites[i].address='null';
+							arrayOfWebsites.websites[i].address='';
 							testing =0;
 						}
 				 }
