@@ -2,6 +2,8 @@
 
 Web-Caching Protocol Written using Node.JS to act as a web proxy for html pages.
 
+The proxy has the ability to handle mulitple requests concurrently from multiple sources
+
 ## Dependencies
 You will need to have node.js installed to run
 
