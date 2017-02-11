@@ -2,10 +2,13 @@ var http = require("http");
 var net = require("net");
 var url = require("url");
 var fs = require("fs");
+var util;
 var HashMap =  require("hashmap");
+var mysql = require('mysql');
 var map = new HashMap();
 var port;
 var blockList;
+
 
 function squidProxy(options) {
     this.port = 9393;
@@ -84,6 +87,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
         /*console.log(requestOptions.path);
         console.log(requestOptions.headers);
         console.log(requestOptions.method);*/
+        var body =[];
 
 
         var remoteRequest = http.request(requestOptions, function(remoteResponse) {
@@ -98,6 +102,10 @@ squidProxy.prototype.requestHandler = function(req, res) {
             res.pipe(remoteResponse);
         });
 
+        remoteRequest.addListener('data', (remoteResponse)=> {
+
+          console.log('here');
+        });
         remoteRequest.on('error', function(e) {
             console.log('error in request: failed to fetch');
            res.writeHead(502, 'Proxy fetch failed');
@@ -105,9 +113,8 @@ squidProxy.prototype.requestHandler = function(req, res) {
            remoteRequest.end();
         });
 
-        req.pipe(remoteRequest);
-        // to the server.
-       res.on('close', function() {
+        req.pipe(remoteRequest);// to the server.
+        res.on('close', function() {
            remoteRequest.abort();
          });
 
@@ -138,6 +145,7 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
        }
 
         function connectRemote(requestOptions, socket) {
+          var body =[];
             var tunnel = net.createConnection(requestOptions, function() {
                 //format http protocol
                 _synReply(socket, 200, 'Connection established', {
@@ -165,6 +173,10 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
 
             tunnel.setNoDelay(true);
             tunnel.on('error', ontargeterror);
+            tunnel.on('data', function(data) {
+              body.push(data);
+              //console.log(data.toString());
+            });
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);
