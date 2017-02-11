@@ -177,6 +177,29 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
               body.push(data);
               //console.log(data.toString());
             });
+
+            tunnel.on('end', () =>{
+              body = Buffer.concat(body);
+              console.log("here");
+              let head  =Buffer.from((JSON.stringify(requestOptions.headers), 'binary').toString('base64'));
+              let values = {
+                url: requestOptions.host,
+                data: body,
+                headers: head
+              };
+              fs.readFile('./cached.json', 'utf-8', function(err, data){
+                if(err) throw err;
+
+                let hold = JSON.parse(data);
+                hold.website.push(values);
+
+                fs.writeFile('./cached.json', JSON.stringify(hold), 'utf-8', function(err){
+          				if (err) throw err;
+          				console.log('written to json');
+          			});
+              });
+
+            });
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);

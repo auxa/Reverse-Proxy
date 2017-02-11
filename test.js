@@ -34,7 +34,6 @@ rl.on('line', (line) =>{
 				if(err) throw err;
 				var i;
 				 arrayOfWebsites = JSON.parse(data);
-
 				 var testing =-1;
 				 for(i =0; i< arrayOfWebsites.websites.length; i++){
 					  if(arrayOfWebsites.websites[i].address === line.trim()){
@@ -47,12 +46,7 @@ rl.on('line', (line) =>{
 					 address: line.trim()
 				 });
 				 }
-
-
-
 				 console.log(i + " " +arrayOfWebsites.websites.length )
-
-
 			fs.writeFile('./websites.json', JSON.stringify(arrayOfWebsites), 'utf-8', function(err){
 				if (err) throw err;
 
