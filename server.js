@@ -72,7 +72,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
             return;
         }
 
-        //u can change request param here
+        //request
         requestRemote(requestOptions, req, res, self);
 
     } catch (e) {
@@ -80,6 +80,12 @@ squidProxy.prototype.requestHandler = function(req, res) {
     }
 
     function requestRemote(requestOptions, req, res, proxy) {
+
+        /*console.log(requestOptions.path);
+        console.log(requestOptions.headers);
+        console.log(requestOptions.method);*/
+
+
         var remoteRequest = http.request(requestOptions, function(remoteResponse) {
             remoteResponse.headers['proxy-agent'] = 'Proxy Agent';
 
@@ -126,7 +132,7 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                     socket.end();
                 }
                catch(e) {
-                  console.log('end error' + e.message);
+                  console.log('could not close. Error: ' + e.message);
               }
            });
        }
@@ -138,6 +144,7 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                         'Connection': 'keep-alive',
                         'Proxy-Agent': 'Squid Proxy'
                     },
+                    //TCP connection
                     //close connect if an error otherwise send packet
                     function(error) {
                         if (error) {
@@ -148,6 +155,10 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                         }
                         tunnel.pipe(socket);
                         socket.pipe(tunnel);
+                      //  console.log('here ' + socket);
+                      //  console.log(tunnel);
+
+
                     }
                 );
             });
@@ -169,6 +180,7 @@ function _synReply(socket, code, reason, headers, errorHandle) {
             headerLines += index + ': ' + headers[index] + '\r\n';  //append all the headers to the header
         }
         socket.write(statusLine + headerLines + '\r\n', 'UTF-8', errorHandle); //send on socket
+
     } catch (error) {
         errorHandle(error);
     }
