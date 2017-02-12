@@ -52,6 +52,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
             method: req.method,
             headers: req.headers
         };
+
         //print the http headers
         console.log(requestOptions.host + "" + requestOptions.path);
       //  console.log('henkadnre');
@@ -96,11 +97,6 @@ squidProxy.prototype.requestHandler = function(req, res) {
             remoteResponse.pipe(res);
             // finish connection
             res.pipe(remoteResponse);
-        });
-
-        remoteRequest.addListener('data', (remoteResponse)=> {
-
-          console.log('here');
         });
         remoteRequest.on('error', function(e) {
             console.log('error in request: failed to fetch');
@@ -166,12 +162,11 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                     }
                 );
             });
-
             tunnel.setNoDelay(true);
             tunnel.on('error', ontargeterror);
             tunnel.on('data', function(data) {
               body.push(data);
-              //console.log(data.toString());
+              console.log(body);
             });
 
       /*      tunnel.on('end', () =>{
@@ -195,17 +190,12 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
             				console.log('written to json');
             			});
                 });
-
-
-
             });*/
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);
     }
-
 }
-
 function _synReply(socket, code, reason, headers, errorHandle) {
     try {
         var statusLine = 'HTTP/1.1 ' + code + ' ' + reason + '\r\n';
