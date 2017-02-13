@@ -32,6 +32,4 @@ To blacklist a website you can either:
 
 To remove a blacklist do the opposite as from above
 
-## To-dos
 
-1.  Allow for dynamic blacklisting of websites.
