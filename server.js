@@ -166,9 +166,11 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
             tunnel.on('error', ontargeterror);
             tunnel.on('data', function(data) {
               body.push(data);
-              console.log(body);
+            //  console.log(body);
             });
-
+            tunnel.on('end', () => {
+              console.log("hello "+ body);
+            });
       /*      tunnel.on('end', () =>{
                 console.log("working");
                 body = Buffer.concat(body);
