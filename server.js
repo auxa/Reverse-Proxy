@@ -87,14 +87,16 @@ squidProxy.prototype.requestHandler = function(req, res) {
         /*console.log(requestOptions.path);
         console.log(requestOptions.headers);
         console.log(requestOptions.method);*/
+        var headers;
+        var body;
         var remoteRequest = http.request(requestOptions, function(remoteResponse) {
             remoteResponse.headers['proxy-agent'] = 'Proxy Agent';
-
+            headers = res._header;
             // write out headers to handle redirects
             res.writeHead(remoteResponse.statusCode, '', remoteResponse.headers);
-
             // change resonse here
             remoteResponse.pipe(res);
+        //    console.log(res);
             // finish connection
             res.pipe(remoteResponse);
         });
@@ -110,7 +112,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
            remoteRequest.abort();
          });
 
-    }
+      }
 
 }
 
@@ -164,17 +166,18 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
             });
             tunnel.setNoDelay(true);
             tunnel.on('error', ontargeterror);
-            tunnel.on('data', function(data) {
-              body.push(data);
-            });
+            tunnel.on('data', function(chunk){
+              console.log("Here");
+
+            })
             tunnel.on('end', () =>{
                 console.log("working");
                 body = Buffer.concat(body);
                 console.log("here");
-                let head = Buffer.from((JSON.stringify(requestOptions.headers), 'binary').toString('utf-8'));
                 let values = {
                   url: requestOptions.host + "/" + requestOptions.path,
-                  headers: head
+                  headers: req.headers,
+                  data: body
                 };
                 fs.readFile('./cached.json', 'utf-8', function(err, data){
                   if(err) throw err;
@@ -182,11 +185,12 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                   hold.website.push(values);
 
                   fs.writeFile('./cached.json', JSON.stringify(hold), 'utf-8', function(err){
-            				if (err) throw err;
-            				console.log('written to json');
-            			});
+                    if (err) throw err;
+                    console.log('written to json');
+                  });
                 });
-            });
+                });
+
         }
     } catch (e) {
         console.log("connectHandler error: " + e.message);
