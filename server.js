@@ -8,6 +8,7 @@ var mysql = require('mysql');
 var map = new HashMap();
 var port;
 var blockList;
+var cache;
 
 
 function squidProxy(options) {
@@ -25,6 +26,12 @@ function squidProxy(options) {
         console.log(blockList.websites[i].address);
         map.set(blockList.websites[i].address, "block");
       }
+    });
+
+    fs.readFile('./cached.json', (err,data) => {
+      if(err) throw err;
+
+      cache = JSON.parse(data);
     });
 
 }
@@ -71,10 +78,11 @@ squidProxy.prototype.requestHandler = function(req, res) {
             res.writeHead(200, {
                 'Content-Type': 'text/plain'
             });
-            res.write("Server");
+            res.write(form.html);
             res.end();
             return;
         }
+
 
         //request
         requestRemote(requestOptions, req, res, self);
@@ -166,17 +174,15 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
             });
             tunnel.setNoDelay(true);
             tunnel.on('error', ontargeterror);
+            //push to array of data recosived
             tunnel.on('data', function(chunk){
-              console.log("Here");
-
-            })
+              body.push(chunk);
+            });
+            //Send to cache
             tunnel.on('end', () =>{
-                console.log("working");
                 body = Buffer.concat(body);
-                console.log("here");
                 let values = {
                   url: requestOptions.host + "/" + requestOptions.path,
-                  headers: req.headers,
                   data: body
                 };
                 fs.readFile('./cached.json', 'utf-8', function(err, data){
@@ -184,10 +190,10 @@ squidProxy.prototype.connectHandler = function(req, socket, head) {
                   let hold = JSON.parse(data);
                   hold.website.push(values);
 
-                  fs.writeFile('./cached.json', JSON.stringify(hold), 'utf-8', function(err){
+          /*        fs.writeFile('./cached.json', JSON.stringify(hold), 'utf-8', function(err){
                     if (err) throw err;
                     console.log('written to json');
-                  });
+                  });*/
                 });
                 });
 
