@@ -10,7 +10,8 @@ var port;
 var blockList;
 var cache;
 
-
+//Constructor which sets up all of the parts of the proxy which I need
+//Sets up the cached and blacklist
 function proxyServer(options) {
     this.port = 9393;
     this.onServerError = function() {};
@@ -36,18 +37,21 @@ function proxyServer(options) {
 
 }
 //create the proxy server and start listening
+//tells the server what to do based on the traffic accross the ports
 proxyServer.prototype.start = function() {
     var server = http.createServer();
-    server.on("request", this.requestHandler);
     server.on("connect", this.connectHandler);
-    server.on("error", this.onServerError);
+    server.on("request", this.requestHandler);
     server.on("beforeRequest", this.onBeforeRequest);
+    server.on("error", this.onServerError);
     server.on("beforeResponse", this.onBeforeResponse);
     server.on("requestError", this.onRequestError);
     server.listen(this.port);
 
 }
-
+//Handles all the request on the server
+//Parses requests and checks if valid -> sends valid request on to next stage
+//Blacklist websites are blocked
 proxyServer.prototype.requestHandler = function(req, res) {
     try {
         var self = this; // this -> server
@@ -90,7 +94,7 @@ proxyServer.prototype.requestHandler = function(req, res) {
     } catch (e) {
         console.log("request error: Bad Request: " + e.message);
     }
-
+    //Sets up request to server
     function requestRemote(requestOptions, req, res, proxy) {
 
         var headers;
@@ -121,7 +125,7 @@ proxyServer.prototype.requestHandler = function(req, res) {
       }
 
 }
-
+//handles the connection traffic across the socket
 proxyServer.prototype.connectHandler = function(req, socket, head) {
     try {
         var self = this;
@@ -194,6 +198,7 @@ proxyServer.prototype.connectHandler = function(req, socket, head) {
         console.log("connectHandler error: " + e.message);
     }
 }
+//SYN reply on connection transactions
 function _synReply(socket, statusCode, info, headers, eHandle) {
     try {
         var status = 'HTTP/1.1 ' + statusCode + ' ' + info + '\r\n';
