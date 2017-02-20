@@ -13,10 +13,10 @@ var cache;
 
 function proxyServer(options) {
     this.port = 9393;
-    this.onServerError = options.onServerError || function() {};
-    this.onBeforeRequest = options.onBeforeRequest || function() {};
-    this.onBeforeResponse = options.onBeforeResponse || function() {};
-    this.onRequestError = options.onRequestError || function() {};
+    this.onServerError = function() {};
+    this.onBeforeRequest =  function() {};
+    this.onBeforeResponse = function() {};
+    this.onRequestError = function() {};
 
     fs.readFile('./websites.json', (err, data) =>{
       if(err) throw err;
@@ -92,9 +92,7 @@ proxyServer.prototype.requestHandler = function(req, res) {
     }
 
     function requestRemote(requestOptions, req, res, proxy) {
-        /*console.log(requestOptions.path);
-        console.log(requestOptions.headers);
-        console.log(requestOptions.method);*/
+
         var headers;
         var body;
         var remoteRequest = http.request(requestOptions, function(remoteResponse) {
@@ -131,12 +129,10 @@ proxyServer.prototype.connectHandler = function(req, socket, head) {
             host: req.url.split(':')[0],
             port: req.url.split(':')[1] || 443  //443 default port (we always want https)
         };
-
         connectRemote(requestOptions, socket);
-
-        function ontargeterror(e) {
-            console.log(req.url + " Tunnel error: " + e);
-                        _synReply(socket, 502, "Tunnel Error", {}, function() {
+        function failedTarget(e) {
+            console.log(req.url + " link error: " + e);
+                        _synReply(socket, 502, "link Error", {}, function() {
                try {
                     socket.end();
                 }
@@ -148,7 +144,7 @@ proxyServer.prototype.connectHandler = function(req, socket, head) {
 
         function connectRemote(requestOptions, socket) {
           var body =[];
-            var tunnel = net.createConnection(requestOptions, function() {
+            var link = net.createConnection(requestOptions, function() {
                 //format http protocol
                 _synReply(socket, 200, 'Connection established', {
                         'Connection': 'keep-alive',
@@ -160,26 +156,22 @@ proxyServer.prototype.connectHandler = function(req, socket, head) {
                         if (error) {
                             socket.end();
                             console.log("syn error", error.message);
-                            tunnel.end();
+                            link.end();
                             return;
                         }
-                        tunnel.pipe(socket);
-                        socket.pipe(tunnel);
-                      //  console.log('here ' + socket);
-                      //  console.log(tunnel);
-
-
+                        link.pipe(socket);
+                        socket.pipe(link);
                     }
                 );
             });
-            tunnel.setNoDelay(true);
-            tunnel.on('error', ontargeterror);
+            link.setNoDelay(true);
+            link.on('error', failedTarget);
             //push to array of data recosived
-            tunnel.on('data', function(chunk){
-              body.push(chunk);
+            link.on('data', function(dataPacket){
+              body.push(dataPacket);
             });
             //Send to cache
-            tunnel.on('end', () =>{
+            link.on('end', () =>{
                 body = Buffer.concat(body);
                 let values = {
                   url: requestOptions.host + "/" + requestOptions.path,
@@ -202,18 +194,17 @@ proxyServer.prototype.connectHandler = function(req, socket, head) {
         console.log("connectHandler error: " + e.message);
     }
 }
-function _synReply(socket, code, reason, headers, errorHandle) {
+function _synReply(socket, statusCode, info, headers, eHandle) {
     try {
-        var statusLine = 'HTTP/1.1 ' + code + ' ' + reason + '\r\n';
+        var status = 'HTTP/1.1 ' + statusCode + ' ' + info + '\r\n';
         var headerLines = '';
         for (var index in headers) {
             headerLines += index + ': ' + headers[index] + '\r\n';  //append all the headers to the header
         }
-        socket.write(statusLine + headerLines + '\r\n', 'UTF-8', errorHandle); //send on socket
+        socket.write(status + headerLines + '\r\n', 'UTF-8', eHandle); //send on socket
 
     } catch (error) {
-        errorHandle(error);
+        eHandle(error);
     }
 }
-
 module.exports = proxyServer;
