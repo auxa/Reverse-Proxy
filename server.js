@@ -106,8 +106,7 @@ proxyServer.prototype.requestHandler = function(req, res) {
             res.writeHead(remoteResponse.statusCode, '', remoteResponse.headers);
             // change resonse here
             remoteResponse.pipe(res);
-        //    console.log(res);
-            // finish connection
+            // send the connection
             res.pipe(remoteResponse);
         });
         remoteRequest.on('error', function(e) {
