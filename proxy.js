@@ -15,7 +15,12 @@ var myProxy = new proxyServer({
 
 myProxy.start();
 console.log("proxy start at 9393");
-
+/*
+management console set up
+works by taking user input from the command line and checking against the JSON file
+if the website is a member of the JSON file it is removed
+else it is added to be a new blacklisted website
+*/
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -57,5 +62,5 @@ rl.on('line', (line) =>{
 	}
 	rl.prompt();
 }).on('close', () =>{
-	console.log('have a good day');
+	console.log('Close connection');
 })
