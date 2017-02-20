@@ -1,4 +1,4 @@
-var squidProxy = require("./index.js");
+var proxyServer = require("./index.js");
 var readline = require('readline');
 var HashMap = require('hashmap');
 var fs = require('fs');
@@ -6,7 +6,7 @@ var arrayOfWebsites;
 
 
 
-var myProxy = new squidProxy({
+var myProxy = new proxyServer({
 	"port": 9393,
 	"onBeforeRequest": function(requestOptions) {
 		console.log("proxy request :" + requestOptions.host);

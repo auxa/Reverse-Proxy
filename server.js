@@ -11,7 +11,7 @@ var blockList;
 var cache;
 
 
-function squidProxy(options) {
+function proxyServer(options) {
     this.port = 9393;
     this.onServerError = options.onServerError || function() {};
     this.onBeforeRequest = options.onBeforeRequest || function() {};
@@ -36,7 +36,7 @@ function squidProxy(options) {
 
 }
 //create the proxy server and start listening
-squidProxy.prototype.start = function() {
+proxyServer.prototype.start = function() {
     var server = http.createServer();
     server.on("request", this.requestHandler);
     server.on("connect", this.connectHandler);
@@ -48,7 +48,7 @@ squidProxy.prototype.start = function() {
 
 }
 
-squidProxy.prototype.requestHandler = function(req, res) {
+proxyServer.prototype.requestHandler = function(req, res) {
     try {
         var self = this; // this -> server
         var path = req.headers.path || url.parse(req.url).path;
@@ -124,7 +124,7 @@ squidProxy.prototype.requestHandler = function(req, res) {
 
 }
 
-squidProxy.prototype.connectHandler = function(req, socket, head) {
+proxyServer.prototype.connectHandler = function(req, socket, head) {
     try {
         var self = this;
         var requestOptions = {
@@ -216,4 +216,4 @@ function _synReply(socket, code, reason, headers, errorHandle) {
     }
 }
 
-module.exports = squidProxy;
+module.exports = proxyServer;
